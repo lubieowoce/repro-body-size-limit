@@ -1,95 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  ErrorBoundary,
+  TestButtonMultipart,
+  TestButtonPlaintext,
+} from "./form";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+    <main style={{ maxWidth: "80ch" }}>
+      <section>
+        <h1>bodySizeLimit test</h1>
+        <p>
+          <code>bodySizeLimit</code> is set to: 1.5MB
+          <br />
+          (but the same thing would happen if removed the setting, the default
+          limit is 1MB)
+          <br />
+          <br />
+          the "multipart/form-data" variant somewhat works, but acts strange:
+          <br />
+          <br />
+          - in `next start`, the request is aborted almost immediately. on the
+          server, side, we'll log an error about the size limit being exceeded.
+          <br />
+          <br />
+          - when deployed, the request will hang and error after a while, and
+          respond with something weird (after what seems to be a timeout
+          somewhere). on the server, side, we'll log an error about the size
+          limit being exceeded.
+          <br />
+          <br />
+          <br />
+          the "text/plain" variant will <strong>not</strong> apply the size
+          limit, and will happily execute the action
+          <br />
+          <br />
+          (they're different cases because react encodes action data differently
+          depending on how complicated it is, a string is simple so it just gets
+          sent as plaintext)
+        </p>
+      </section>
+      <hr />
+      <section>
+        <h2>content-type: multipart/form-data</h2>
+        <ErrorBoundary>
+          <TestButtonMultipart
+            action={async (_state) => {
+              "use server";
+              console.log("hello from multipart action");
+              return `action result ${Date.now()}`;
+            }}
           />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+        </ErrorBoundary>
+      </section>
+      <section>
+        <h2>content-type: text/plain</h2>
+        <ErrorBoundary>
+          <TestButtonPlaintext
+            action={async (_state) => {
+              "use server";
+              console.log("hello from plaintext action");
+              return `action result ${Date.now()}`;
+            }}
           />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </ErrorBoundary>
+      </section>
+    </main>
   );
 }
